@@ -64,3 +64,21 @@ class KITTICalibration:
         image_points = image_points[:, :2] / image_points[:, 2:3]
 
         return image_points, cam_points[:, 2]  # image coords, depth
+
+    def rotate_camera_vertically_and_project(self, lidar_points, angle_deg):
+        theta = np.radians(angle_deg)
+        R_x = np.array([
+            [1, 0, 0, 0],
+            [0, np.cos(theta), -np.sin(theta), 0],
+            [0, np.sin(theta), np.cos(theta), 0],
+            [0, 0, 0, 1]
+        ])
+
+        lidar_hom = np.hstack((lidar_points[:, :3], np.ones((lidar_points.shape[0], 1))))
+        cam_points = (self.Tr_velo_to_cam @ lidar_hom.T).T
+        cam_points = (R_x @ cam_points.T).T
+        cam_points = (self.R0_rect @ cam_points.T).T
+        image_points = (self.P2 @ cam_points.T).T
+        image_points = image_points[:, :2] / image_points[:, 2:3]
+
+        return image_points, cam_points[:, 2]

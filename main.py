@@ -66,6 +66,7 @@ if __name__ == "__main__":
 
     for ax, angle_deg in zip(axes, angles):
         img_points, depth = calibration_obj.rotate_camera_and_project(lidar_points=lidar, angle_deg=angle_deg)
+        # img_points, depth = calibration_obj.rotate_camera_vertically_and_project(lidar_points=lidar, angle_deg=angle_deg)
 
         # Apply mask to keep points inside image boundaries and in front of the camera
         mask = (depth > 0) & (img_points[:, 0] >= 0) & (img_points[:, 1] >= 0) & \
