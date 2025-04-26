@@ -55,12 +55,11 @@ class KITTILabelHandler:
         corners_3d += np.array([[x], [y], [z]])
         return corners_3d.T
     
-    def plot_boxes_on_ax(self, calib: KITTICalibration, ax, angle=0, color="#F00"):
+    def plot_boxes_with_yaw(self, calib: KITTICalibration, ax, angle=0, color="#F00"):
         """
         Projects 3D bounding boxes into the rotated camera view and draws them on a Matplotlib Axes.
 
         Args:
-            label_file: Path to KITTI labels (.txt)
             calib:      KITTICalibration object
             ax:         Matplotlib Axes
             angle:      yaw rotation in degrees
@@ -102,3 +101,47 @@ class KITTILabelHandler:
                     color=color, linewidth=1.5
                 )
 
+    def plot_boxes_with_pitch(self, calib: KITTICalibration, ax, pitch=0, color="#0F0"):
+        """
+        Projects 3D bounding boxes into a camera view pitched up/down and draws them on a Matplotlib Axes.
+
+        Args:
+            calib:    KITTICalibration object
+            ax:       Matplotlib Axes
+            pitch:    camera pitch rotation in degrees (positive pitches down)
+        """
+        # Build pitch (rotation around X axis) matrix
+        theta = np.radians(pitch)
+        R_x = np.array([
+            [1,             0,              0, 0],
+            [0, np.cos(theta), -np.sin(theta), 0],
+            [0, np.sin(theta),  np.cos(theta), 0],
+            [0,             0,              0, 1]
+        ])
+
+        boxes = self.get_3d_boxes()
+
+        for corners_3d in boxes:
+            # Homogenize corners (8,4)
+            corners_h = np.hstack([corners_3d, np.ones((8,1))])
+
+            # Apply pitch rotation in camera frame
+            rotated = (R_x @ corners_h.T).T        # (8,4)
+            # Rectify if needed
+            rectified = (calib.R0_rect @ rotated.T).T  # (8,4)
+            # Project to image
+            img_pts_h = (calib.P2 @ rectified.T).T      # (8,3)
+            img_pts = img_pts_h[:, :2] / img_pts_h[:, 2:3]
+
+            # Box edges
+            edges = [
+                (0,1),(1,2),(2,3),(3,0),  # bottom
+                (4,5),(5,6),(6,7),(7,4),  # top
+                (0,4),(1,5),(2,6),(3,7)   # sides
+            ]
+            for i,j in edges:
+                ax.plot(
+                    [img_pts[i,0], img_pts[j,0]],
+                    [img_pts[i,1], img_pts[j,1]],
+                    color=color, linewidth=1.5
+                )

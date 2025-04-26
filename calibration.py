@@ -42,7 +42,7 @@ class KITTICalibration:
         image_points = image_points[:, :2] / image_points[:, 2:3]
         return image_points, cam_points[:, 2]  # image coords, depth
     
-    def rotate_camera_and_project(self, lidar_points, angle_deg):
+    def rotate_camera_and_project_with_yaw(self, lidar_points, angle_deg):
         # Rotation matrix around Y axis (yaw)
         theta = np.radians(angle_deg)
         R_y = np.array([
@@ -66,7 +66,7 @@ class KITTICalibration:
 
         return image_points, cam_points[:, 2]  # image coords, depth
 
-    def rotate_camera_vertically_and_project(self, lidar_points, angle_deg):
+    def rotate_camera_and_project_with_pitch(self, lidar_points, angle_deg):
         theta = np.radians(angle_deg)
         R_x = np.array([
             [1, 0, 0, 0],
