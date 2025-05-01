@@ -1,8 +1,9 @@
 import numpy as np
 
+from base_kitti_handler import KITTIHandlerBase
 from calibration import KITTICalibration
 
-class KITTILabelHandler:
+class KITTILabelHandler(KITTIHandlerBase):
     def __init__(self, label_file):
         self.label_file = label_file
         self.labels = self._read_labels()
@@ -55,43 +56,6 @@ class KITTILabelHandler:
         corners_3d += np.array([[x], [y], [z]])
         return corners_3d.T
     
-    def plot_boxes_with_yaw(self, calib: KITTICalibration, ax, angle=0, color="#F00"):
-        """
-        Projects and draws rotated 3D bounding boxes onto a Matplotlib Axes.
-        """
-        yaw_matrix = self._get_yaw_rotation_matrix(angle)
-        boxes = self.get_3d_boxes()
-
-        for corners_3d in boxes:
-            img_pts = self._project_box_to_image(corners_3d, yaw_matrix, calib)
-            self._draw_box_edges(ax, img_pts, color)
-
-
-    def _get_yaw_rotation_matrix(self, angle_degrees: float) -> np.ndarray:
-        """
-        Returns a 4x4 homogeneous yaw rotation matrix (Y-axis) in camera coordinates.
-        """
-        theta = np.radians(angle_degrees)
-        return np.array([
-            [ np.cos(theta), 0, np.sin(theta), 0],
-            [             0, 1,             0, 0],
-            [-np.sin(theta), 0, np.cos(theta), 0],
-            [             0, 0,             0, 1]
-        ])
-        
-    def _get_pitch_rotation_matrix(self, pitch_degrees: float) -> np.ndarray:
-        """
-        Returns a 4x4 homogeneous pitch rotation matrix (X-axis) in camera coordinates.
-        """
-        theta = np.radians(pitch_degrees)
-        return np.array([
-            [1,             0,              0, 0],
-            [0, np.cos(theta), -np.sin(theta), 0],
-            [0, np.sin(theta),  np.cos(theta), 0],
-            [0,             0,              0, 1]
-        ])
-
-
     def _project_box_to_image(self, corners_3d: np.ndarray, yaw_matrix: np.ndarray, calib: KITTICalibration) -> np.ndarray:
         """
         Applies rotation, rectification, and projection of 3D box corners to image coordinates.
@@ -103,7 +67,7 @@ class KITTILabelHandler:
         rectified = (calib.R0_rect @ rotated.T).T                   # (8, 4)
         img_pts_h = (calib.P2 @ rectified.T).T                      # (8, 3)
         img_pts = img_pts_h[:, :2] / img_pts_h[:, 2:3]              # normalize
-        return img_pts
+        return img_pts_h, img_pts
 
 
     def _draw_box_edges(self, ax, img_pts: np.ndarray, color: str):
@@ -122,13 +86,42 @@ class KITTILabelHandler:
                 color=color, linewidth=1.5
             )
 
-    def plot_boxes_with_pitch(self, calib: KITTICalibration, ax, pitch=0, color="#0F0"):
+    def plot_boxes_with_pitch(self, calib: KITTICalibration, ax, yaw_deg=0, pitch_deg=0, color="#0F0"):
         """
         Projects and draws 3D bounding boxes from a pitched camera view onto a Matplotlib Axes.
         """
-        pitch_matrix = self._get_pitch_rotation_matrix(pitch)
+        pitch_matrix = self._get_rotation_matrix(pitch_deg=pitch_deg, yaw_deg=yaw_deg)
         boxes = self.get_3d_boxes()
 
         for corners_3d in boxes:
-            img_pts = self._project_box_to_image(corners_3d, pitch_matrix, calib)
+            _, img_pts = self._project_box_to_image(corners_3d, pitch_matrix, calib)
             self._draw_box_edges(ax, img_pts, color)
+            
+    def get_3d_boxes_rotated(self, calib: KITTICalibration, yaw_deg=0, pitch_deg=0):
+        R = self._get_rotation_matrix(pitch_deg=pitch_deg, yaw_deg=yaw_deg)
+        boxes = self.get_3d_boxes()
+        projected_boxes = []
+        
+        for corners_3d in boxes:
+            _, img_pts = self._project_box_to_image(corners_3d, R, calib)
+            projected_boxes.append(img_pts)
+            
+        return projected_boxes
+
+    def get_2d_boxes_rotated(self, calib: KITTICalibration, yaw_deg=0, pitch_deg=0):
+        """
+        For each label, rotate its 3D box by (yaw,pitch), project, and return
+        a list of (xmin, ymin, xmax, ymax), skipping any box wholly behind the camera.
+        """
+        R = self._get_rotation_matrix(yaw_deg, pitch_deg)
+        rects = []
+        for lbl in self.labels:
+            corners = self.compute_box_3d(lbl)                  # (8,3)
+            pts_h, pts_2d = self._project_box_to_image(corners, R, calib)
+            # skip if all behind
+            if np.all(pts_h[:,2] <= 0):
+                continue
+            x0, y0 = pts_2d[:,0].min(), pts_2d[:,1].min()
+            x1, y1 = pts_2d[:,0].max(), pts_2d[:,1].max()
+            rects.append((x0, y0, x1, y1))
+        return rects
