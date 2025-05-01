@@ -35,7 +35,7 @@ class KITTILabelHandler(KITTIHandlerBase):
             box = self.compute_box_3d(label)
             boxes.append(box)
         return boxes
-
+    
     def compute_box_3d(self, label):
         h, w, l = label['h'], label['w'], label['l']
         x, y, z = label['x'], label['y'], label['z']
@@ -115,7 +115,9 @@ class KITTILabelHandler(KITTIHandlerBase):
         """
         R = self._get_rotation_matrix(yaw_deg, pitch_deg)
         rects = []
+        objects_type = []
         for lbl in self.labels:
+            obj_type = lbl.get("type")
             corners = self.compute_box_3d(lbl)                  # (8,3)
             pts_h, pts_2d = self._project_box_to_image(corners, R, calib)
             # skip if all behind
@@ -124,4 +126,5 @@ class KITTILabelHandler(KITTIHandlerBase):
             x0, y0 = pts_2d[:,0].min(), pts_2d[:,1].min()
             x1, y1 = pts_2d[:,0].max(), pts_2d[:,1].max()
             rects.append((x0, y0, x1, y1))
-        return rects
+            objects_type.append(obj_type)
+        return objects_type, rects
