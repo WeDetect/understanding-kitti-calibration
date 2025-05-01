@@ -41,8 +41,8 @@ def main_plot():
         ax.axis('off')
 
         # Scatter LiDAR points with yaw rotation
-        img_pts, depth = calib.rotate_camera_and_project_with_yaw(lidar, angle)
-        # img_pts, depth = calib.rotate_camera_and_project_with_pitch(lidar, angle)
+        # img_pts, depth = calib.rotate_camera_and_project_with_yaw(lidar, angle)
+        img_pts, depth = calib.rotate_camera_and_project_with_pitch(lidar, angle)
         
         mask = (
             (depth > 0) &
@@ -53,8 +53,8 @@ def main_plot():
         ax.scatter(pts[:,0], pts[:,1], c=dp, cmap='jet', s=1, alpha=0.3)
 
         # Overlay rotated 3D boxes
-        label.plot_boxes_with_yaw(calib, ax, angle=angle)
-        # label.plot_boxes_with_pitch(calib, ax, angle)
+        # label.plot_boxes_with_yaw(calib, ax, angle=angle)
+        label.plot_boxes_with_pitch(calib, ax, angle)
         
         ax.set_title(f"Yaw: {angle}°", fontsize=14)
         # ax.set_title(f"Pitch: {angle}°", fontsize=14)
