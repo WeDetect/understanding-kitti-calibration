@@ -8,7 +8,6 @@ from dotenv import load_dotenv
 from calibration import KITTICalibration
 from labels_handler import KITTILabelHandler
 from plot_utils import draw_points_on_plot, draw_rect_on_plot
-from yolo_adapter import rects_to_yolo, save_yolo_label
 
 load_dotenv(dotenv_path=".env")
     
@@ -50,11 +49,6 @@ def main_plot():
         draw_rect_on_plot(ax, objects_rect)
         
         ax.set_title(f"Yaw: {yaw_angle}°, Pitch: {pitch_angle}°")        
-        
-        yolo_lines = rects_to_yolo(objects_rect, image.shape, class_names=objects_type)
-        print(yolo_lines)
-        # save_yolo_label(output=Path("label_test.txt"), yolo_lines=yolo_lines)
-        
 
     fig.suptitle("LiDAR & 2D Rects at Multiple  Angles", fontsize=16)
     plt.tight_layout(rect=[0,0,1,0.95])
