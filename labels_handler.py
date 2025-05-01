@@ -85,20 +85,8 @@ class KITTILabelHandler(KITTIHandlerBase):
                 [img_pts[i,1], img_pts[j,1]],
                 color=color, linewidth=1.5
             )
-
-    def plot_boxes_with_pitch(self, calib: KITTICalibration, ax, yaw_deg=0, pitch_deg=0, color="#0F0"):
-        """
-        Projects and draws 3D bounding boxes from a pitched camera view onto a Matplotlib Axes.
-        """
-        pitch_matrix = self._get_rotation_matrix(pitch_deg=pitch_deg, yaw_deg=yaw_deg)
-        boxes = self.get_3d_boxes()
-
-        for corners_3d in boxes:
-            _, img_pts = self._project_box_to_image(corners_3d, pitch_matrix, calib)
-            self._draw_box_edges(ax, img_pts, color)
             
-    def get_3d_boxes_rotated(self, calib: KITTICalibration, yaw_deg=0, pitch_deg=0):
-        R = self._get_rotation_matrix(pitch_deg=pitch_deg, yaw_deg=yaw_deg)
+    def get_3d_boxes_rotated(self, calib: KITTICalibration, R):
         boxes = self.get_3d_boxes()
         projected_boxes = []
         
@@ -108,12 +96,11 @@ class KITTILabelHandler(KITTIHandlerBase):
             
         return projected_boxes
 
-    def get_2d_boxes_rotated(self, calib: KITTICalibration, yaw_deg=0, pitch_deg=0):
+    def get_2d_boxes_rotated(self, calib: KITTICalibration, R):
         """
         For each label, rotate its 3D box by (yaw,pitch), project, and return
         a list of (xmin, ymin, xmax, ymax), skipping any box wholly behind the camera.
         """
-        R = self._get_rotation_matrix(yaw_deg, pitch_deg)
         rects = []
         objects_type = []
         for lbl in self.labels:
