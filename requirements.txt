@@ -3,3 +3,4 @@ opencv-python
 matplotlib
 python-dotenv
 tqdm
+setuptools

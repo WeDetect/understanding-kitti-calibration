@@ -1,6 +1,6 @@
 import numpy as np
 
-from base_kitti_handler import KITTIHandlerBase
+from models.base_kitti_handler import KITTIHandlerBase
 
 
 class KITTICalibration(KITTIHandlerBase):

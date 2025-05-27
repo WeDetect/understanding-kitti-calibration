@@ -5,8 +5,8 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-from calibration import KITTICalibration
-from labels_handler import KITTILabelHandler
+from point_cloud_handlers.calibration import KITTICalibration
+from point_cloud_handlers.labels_handler import KITTILabelHandler
 from plot_utils import draw_box_edges_on_plot, draw_points_on_plot
 
 load_dotenv(dotenv_path=".env")
