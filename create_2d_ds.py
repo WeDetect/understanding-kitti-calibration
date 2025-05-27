@@ -10,9 +10,12 @@ from labels_handler import KITTILabelHandler
 from plot_utils import draw_points_on_plot
 from yolo_adapter import rects_to_yolo, save_yolo_label
 
+from tqdm import tqdm
+
 load_dotenv(dotenv_path=".env")
 
 KITTI_PATH = os.environ.get("KITTI_PATH")
+print(KITTI_PATH)
 file = "000000"
 
 # Paths
@@ -22,13 +25,13 @@ img_dir_path   = Path(KITTI_PATH)/"image_2"
 label_dir_path = Path(KITTI_PATH)/"label_2"
 
 # Angles
-yaw_angles =      [0        ,0      ,0]
-pitch_angles =    [0        ,0      ,90]    
+yaw_angles =      [-45        ,0      ,45]
+pitch_angles =    [0        ,0      ,0]    
 roll_angles =     [0        ,0      ,0]   
 # Transform
-tx_s =            [-5       ,0      ,0]   
-ty_s =            [0        ,1      ,7.5]   
-tz_s =            [0        ,0      ,10]   
+tx_s =            [0        ,0      ,0]   
+ty_s =            [0        ,0      ,0]   
+tz_s =            [0        ,0      ,0]   
      
 def get_file_data(file):
     img_path = img_dir_path / f"{file}.png"
@@ -47,11 +50,11 @@ def get_file_data(file):
     return image,lidar,calib,label_handler
 
 def create_file_variants(file):
+    image, lidar, calib, label_handler = get_file_data(file)
+    
     for i, (yaw_angle, pitch_angle, roll_angle, tx, ty, tz) in enumerate(
         zip(yaw_angles, pitch_angles, roll_angles, tx_s, ty_s, tz_s)
     ):
-        image, lidar, calib, label_handler = get_file_data(file)
-        
         dataset_path = Path("datasets") / f"dataset_{i}"
         image_dir = dataset_path / "images"
         label_dir = dataset_path / "labels"
@@ -96,13 +99,13 @@ def save_image(file, image_dir, fig):
 def create_readme_file(yaw_angle, pitch_angle, roll_angle, tx, ty, tz, readme_file):
     with open(readme_file, 'w') as f:
         f.write(
-                    "# Dataset {i} \n" \
-                    f"yaw_angle: {yaw_angle}, pitch_angle: {pitch_angle}, roll_angle: {roll_angle} \n" \
-                    f"tx: {tx}, ty: {ty}, tz: {tz} \n"
-                )
+            "# Dataset {i} \n" \
+            f"yaw_angle: {yaw_angle}, pitch_angle: {pitch_angle}, roll_angle: {roll_angle} \n" \
+            f"tx: {tx}, ty: {ty}, tz: {tz} \n"
+        )
 
 if __name__ == "__main__":
-    for i in range(2):
+    for i in tqdm(range(7481)):
         file_name = f"{i:06d}"
         create_file_variants(file=file_name)
     print("Datasets saved successfully.")

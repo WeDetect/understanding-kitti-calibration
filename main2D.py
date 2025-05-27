@@ -32,13 +32,13 @@ label = KITTILabelHandler(label_file)
 
 def main_plot():
     # Angles to visualize
-    #                                   BEV
-    yaw_angles =      [0        ,0      ,0]
-    pitch_angles =    [0        ,0      ,90]    
+    yaw_angles =      [-15        ,0      ,15]
+    pitch_angles =    [0        ,0      ,0]    
     roll_angles =     [0        ,0      ,0]   
-    tx_s =            [-5       ,0      ,0]   
-    ty_s =            [0        ,1      ,7.5]   
-    tz_s =            [0        ,0      ,10]   
+    # Translation
+    tx_s =            [5        ,0      ,-5]   
+    ty_s =            [0        ,0      ,0]   
+    tz_s =            [0        ,0      ,0]   
      
     fig, axes = plt.subplots(1, len(yaw_angles), figsize=(20, 6))
     axes = axes if isinstance(axes, np.ndarray) else [axes]
