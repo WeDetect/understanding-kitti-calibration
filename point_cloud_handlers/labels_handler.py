@@ -1,7 +1,7 @@
 import numpy as np
 
-from models.base_kitti_handler import KITTIHandlerBase
-from models.calibration import KITTICalibration
+from point_cloud_handlers.base_kitti_handler import KITTIHandlerBase
+from point_cloud_handlers.calibration import KITTICalibration
 
 class KITTILabelHandler(KITTIHandlerBase):
     def __init__(self, label_file):
