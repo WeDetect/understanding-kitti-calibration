@@ -12,27 +12,7 @@ from point_cloud_handlers.yolo_adapter import rects_to_yolo, save_yolo_label
 
 from tqdm import tqdm
 
-load_dotenv(dotenv_path=".env")
 
-KITTI_PATH = os.environ.get("KITTI_PATH")
-print(KITTI_PATH)
-file = "000000"
-
-# Paths
-calib_dir_path = Path(KITTI_PATH)/"calib"
-vel_dir_path   = Path(KITTI_PATH)/"velodyne"
-img_dir_path   = Path(KITTI_PATH)/"image_2"
-label_dir_path = Path(KITTI_PATH)/"label_2"
-
-# Angles
-yaw_angles =      [-45        ,0      ,45]
-pitch_angles =    [0        ,0      ,0]    
-roll_angles =     [0        ,0      ,0]   
-# Transform
-tx_s =            [0        ,0      ,0]   
-ty_s =            [0        ,0      ,0]   
-tz_s =            [0        ,0      ,0]   
-     
 def get_file_data(file):
     img_path = img_dir_path / f"{file}.png"
     vel_path = vel_dir_path / f"{file}.bin"
@@ -105,6 +85,27 @@ def create_readme_file(yaw_angle, pitch_angle, roll_angle, tx, ty, tz, readme_fi
         )
 
 if __name__ == "__main__":
+    load_dotenv(dotenv_path=".env")
+
+    KITTI_PATH = os.environ.get("KITTI_PATH")
+    print(KITTI_PATH)
+    file = "000000"
+
+    # Paths
+    calib_dir_path = Path(KITTI_PATH)/"calib"
+    vel_dir_path   = Path(KITTI_PATH)/"velodyne"
+    img_dir_path   = Path(KITTI_PATH)/"image_2"
+    label_dir_path = Path(KITTI_PATH)/"label_2"
+
+    # Angles
+    yaw_angles =      [-45        ,0      ,45]
+    pitch_angles =    [0        ,0      ,0]    
+    roll_angles =     [0        ,0      ,0]   
+    # Transform
+    tx_s =            [0        ,0      ,0]   
+    ty_s =            [0        ,0      ,0]   
+    tz_s =            [0        ,0      ,0]   
+
     for i in tqdm(range(7481)):
         file_name = f"{i:06d}"
         create_file_variants(file=file_name)
