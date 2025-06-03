@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 from point_cloud_handlers.calibration import KITTICalibration
 from point_cloud_handlers.labels_handler import KITTILabelHandler
-from plot_utils import draw_points_on_plot, draw_rect_on_plot
+from point_cloud_handlers.plot_utils import draw_points_on_plot, draw_rect_on_plot
 
 load_dotenv(dotenv_path=".env")
     
