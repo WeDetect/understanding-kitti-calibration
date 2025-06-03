@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from point_cloud_handlers.calibration import KITTICalibration
 from point_cloud_handlers.labels_handler import KITTILabelHandler
 from point_cloud_handlers.plot_utils import draw_points_on_plot
-from yolo_adapter import rects_to_yolo, save_yolo_label
+from point_cloud_handlers.yolo_adapter import rects_to_yolo, save_yolo_label
 
 from tqdm import tqdm
 
@@ -47,7 +47,7 @@ def get_file_data(file):
     # Calibration and Labels
     calib = KITTICalibration(calib_path)
     label_handler = KITTILabelHandler(label_file)
-    return image,lidar,calib,label_handler
+    return image, lidar, calib, label_handler
 
 def create_file_variants(file):
     image, lidar, calib, label_handler = get_file_data(file)
